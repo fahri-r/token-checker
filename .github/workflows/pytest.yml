@@ -1,0 +1,54 @@
+# .github/workflows/app.yaml
+name: PyTest
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Create env file"
+        run: |
+          touch .env
+          echo DB_URI=${{ secrets.DB_URI }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo MORALIS_API_TOKEN=${{ secrets.MORALIS_API_TOKEN }} >> .env
+          echo WBNB_ADDRESS=${{ secrets.WBNB_ADDRESS }} >> .env
+          echo WETH_ADDRESS=${{ secrets.WETH_ADDRESS }} >> .env
+          cat .env
+
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      # Setup Python (faster than using Python container)
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Install pipenv
+        run: |
+          python -m pip install --upgrade pipenv wheel
+      - id: cache-pipenv
+        uses: actions/cache@v1
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: |
+          pipenv install --deploy --dev
+
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_DB_URI: ${{ secrets.DB_URI }}
+          envkey_DB_NAME: ${{ secrets.DB_NAME }}
+          envkey_MORALIS_API_TOKEN: ${{ secrets.MORALIS_API_TOKEN }}
+          envkey_WBNB_ADDRESS: ${{ secrets.WBNB_ADDRESS }}
+          envkey_WETH_ADDRESS: ${{ secrets.WETH_ADDRESS }}
+
+      - name: Run test suite
+        run: |
+          pipenv run test -v
