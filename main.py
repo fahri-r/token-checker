@@ -2,6 +2,7 @@ import os
 import requests
 from datetime import datetime
 from db import get_database
+import validators
 
 db = get_database()
 
@@ -227,3 +228,417 @@ def buy_check():
                 except Exception as e:
                     print(e)
                     continue
+
+
+def change_ads(url, chat_id):
+    if not validators.url(url):
+        text = f"Please input valid URL!"
+        return text
+
+    db.group.update_one(
+        {
+            'chatId': chat_id
+        },
+        {'$set': {
+            'adsUrl': url,
+        },
+        }
+    )
+    text = "Ads URL successfully changed"
+    return text
+
+
+def remove_ads(chat_id):
+    db.group.update_one(
+        {
+            'chatId': chat_id
+        },
+        {'$set': {
+            'adsUrl': "",
+        },
+        }
+    )
+    text = "Ads URL successfully removed"
+
+    return text
+
+
+def change_min_buy(min_buy, group_id, token_id):
+    try:
+        min_buy = int(min_buy)
+    except:
+        try:
+            min_buy = float(min_buy)
+        except:
+            min_buy = min_buy
+
+    if not isinstance(min_buy, (int, float)):
+        msg = f"Please input valid value!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'minBuy': min_buy,
+        },
+        }
+    )
+
+    text = "Minimum buy successfully changed"
+    return text
+
+
+def change_emoji(group_id, token_id, emoji):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'emoji': emoji,
+        },
+        }
+    )
+
+    text = "Emoji successfully changed"
+    return text
+
+
+def delete_token(group_id, token_id):
+    db.groupToken.delete_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+    )
+    text = "Token successfully deleted"
+    return text
+
+
+def change_telegram(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'telegramUrl': url,
+        },
+        }
+    )
+
+    text = "Telegram URL successfully changed"
+    return text
+
+
+def remove_telegram(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'telegramUrl': "",
+        },
+        }
+    )
+    text = "Telegram URL successfully removed"
+    return text
+
+
+def change_presale(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'presaleUrl': url,
+        },
+        }
+    )
+
+    text = "Presale URL successfully changed"
+    return text
+
+
+def remove_presale(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'presaleUrl': "",
+        },
+        }
+    )
+    text = "Presale URL successfully removed"
+    return text
+
+
+def change_chart(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'chartUrl': url,
+        },
+        }
+    )
+
+    text = "Chart URL successfully changed"
+    return text
+
+
+def remove_chart(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'chartUrl': "",
+        },
+        }
+    )
+    text = "Chart URL successfully removed"
+    return text
+
+
+def change_discord(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'discordUrl': url,
+        },
+        }
+    )
+
+    text = "Discord URL successfully changed"
+    return text
+
+
+def remove_discord(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'discordUrl': "",
+        },
+        }
+    )
+    text = "Discord URL successfully removed"
+    return text
+
+
+def change_twitter(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'twitterUrl': url,
+        },
+        }
+    )
+
+    text = "Twitter URL successfully changed"
+    return text
+
+
+def remove_twitter(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'twitterUrl': "",
+        },
+        }
+    )
+    text = "Twitter URL successfully removed"
+    return text
+
+
+def change_website(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'websiteUrl': url,
+        },
+        }
+    )
+
+    text = "Website URL successfully changed"
+    return text
+
+
+def remove_website(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'websiteUrl': "",
+        },
+        }
+    )
+    text = "Website URL successfully removed"
+    return text
+
+
+def change_image(url, group_id, token_id):
+    if not validators.url(url):
+        msg = f"Please input valid URL!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'imageUrl': url,
+        },
+        }
+    )
+
+    text = "Image URL successfully changed"
+    return text
+
+
+def remove_image(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'imageUrl': "",
+        },
+        }
+    )
+    text = "Image URL successfully removed"
+    return text
+
+
+def change_content(text, group_id, token_id):
+    if not text:
+        msg = f"Please input content!"
+        return msg
+
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'content': text,
+        },
+        }
+    )
+
+    text = "Content successfully changed"
+    return text
+
+
+def remove_content(group_id, token_id):
+    db.groupToken.update_one(
+        {
+            'groupId': group_id,
+            'tokenId': token_id
+        },
+        {'$set': {
+            'content': "",
+        },
+        }
+    )
+    text = "Content successfully removed"
+    return text
+
+
+def resume_all(chat_id):
+    group = db.group.find_one({
+        "chatId": chat_id
+    })
+    db.groupToken.update_many(
+        {
+            'groupId': group["_id"]
+        },
+        {'$set': {
+            'isPaused': False,
+        },
+        }
+    )
+    text = "Token buy notification successfully continued!"
+    return text
+
+
+def pause_all(chat_id):
+    group = db.group.find_one({
+        "chatId": chat_id
+    })
+    db.groupToken.update_many(
+        {
+            'groupId': group["_id"]
+        },
+        {'$set': {
+            'isPaused': True,
+        },
+        }
+    )
+    text = "Token buy notification successfully paused!"
+    return text
+
+
+def delete_all(chat_id):
+    group = db.group.find_one({
+        "chatId": chat_id
+    })
+    db.groupToken.delete_many(
+        {
+            'groupId': group["_id"]
+        }
+    )
+    text = "All token successfully deleted!"
+    return text
