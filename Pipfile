@@ -11,6 +11,9 @@ pymongo = "*"
 dnspython = "*"
 autopep8 = "*"
 validators = "*"
+cmake = "*"
+blacksheep = "*"
+uvicorn = "*"
 
 [dev-packages]
 pytest = "*"
