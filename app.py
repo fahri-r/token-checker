@@ -156,8 +156,8 @@ async def update_token(token_id, input: FromJSON[dict]):
 @docs(token.delete_token)
 @app.router.delete("/token/{token_id}")
 async def delete_token(token_id, input: FromJSON[dict]):
-    group_id, token_id = itemgetter(
-        'group_id', 'token_id')(input.value)
+    group_id = itemgetter(
+        'group_id')(input.value)
     db.groupToken.delete_one(
         {
             'groupId': group_id,

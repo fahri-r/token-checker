@@ -39,8 +39,8 @@ class TestClass:
     def test_delete_token(self):
         group_id = ObjectId('6347be27293b2388b9db1f93')
         token_id = ObjectId('6350ef9f5b2c7cea3e6ea61a')
-        data = {group_id, token_id}
-        assert delete_token(data)
+        data = {group_id}
+        assert delete_token(token_id, data)
 
     def test_change_telegram(self):
         url = "https://t.me/soji_shim"
