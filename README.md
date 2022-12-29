@@ -69,9 +69,7 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]][product-screenshot]
-
-Token Buy Checker is application for that can notify user when there is a purchase of a token.
+Token Buy Checker is application for that can notify user when there is a purchase of a token. You can check this demo on <a href="https://token-checker.herokuapp.com/docs">https://token-checker.herokuapp.com/docs</a>
 
 <p align="right">
     <a href="#top">
