@@ -156,4 +156,4 @@ class TestClass:
     def test_delete_all(self):
         chat_id = -1001612967544
         data = {chat_id}
-        assert delete_all(data)
+        assert delete_tokens(data)
