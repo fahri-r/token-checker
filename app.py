@@ -1,15 +1,23 @@
 from blacksheep import Application, FromJSON, status_code
+from blacksheep.server.openapi.v3 import OpenAPIHandler
+from openapidocs.v3 import Info
 import os
 from datetime import datetime
 import requests
 from db import get_database
 import validators
 from operator import itemgetter
+from bson.objectid import ObjectId
+from docs import token
 
 app = Application()
 db = get_database()
 
+docs = OpenAPIHandler(info=Info(title="Token Checker API", version="0.0.1"))
+docs.bind_app(app)
 
+
+@docs(token.create_token)
 @app.router.post("/token")
 async def add_token(input: FromJSON[dict]):
     token_address, chain, chat_id = itemgetter(
@@ -91,7 +99,7 @@ async def add_token(input: FromJSON[dict]):
     })
     if is_added:
         msg = f"Pair Already Added"
-        return status_code(422, message={'message': msg})
+        return status_code(400, message={'message': msg})
     else:
         db.groupToken.insert_one({
             "tokenId": token_id,
@@ -106,21 +114,18 @@ async def add_token(input: FromJSON[dict]):
         return status_code(200, message={'message': msg})
 
 
+@docs(token.update_tokens)
 @app.router.put("/token")
-async def update_token(input: FromJSON[dict]):
-    chat_id, is_paused = itemgetter(
-        'chat_id', 'is_paused')(input.value)
-
-    group = db.group.find_one({
-        "chatId": chat_id
-    })
+async def update_tokens(input: FromJSON[dict]):
+    group_id, is_paused = itemgetter(
+        'group_id', 'is_paused')(input.value)
 
     db.groupToken.update_many(
         {
-            'groupId': group["_id"]
+            'groupId': ObjectId(group_id),
         },
         {'$set': {
-            'isPaused': is_paused,
+            'isPaused': True,
         },
         }
     )
@@ -128,14 +133,16 @@ async def update_token(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_token)
 @app.router.put("/token/{token_id}")
 async def update_token(token_id, input: FromJSON[dict]):
     group_id, is_paused = itemgetter(
         'group_id', 'is_paused')(input.value)
+
     db.groupToken.update_one(
         {
-            'groupId': group_id,
-            'tokenId': token_id
+            'groupId': ObjectId(group_id),
+            'tokenId': ObjectId(token_id)
         },
         {'$set': {
             'isPaused': is_paused,
@@ -146,35 +153,37 @@ async def update_token(token_id, input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_token)
 @app.router.delete("/token/{token_id}")
-async def delete_token(token_id):
+async def delete_token(token_id, input: FromJSON[dict]):
+    group_id = itemgetter(
+        'group_id')(input.value)
     db.groupToken.delete_one(
         {
-            '_id': token_id,
+            'groupId': group_id,
+            'tokenId': token_id
         },
     )
     msg = "Token successfully deleted!"
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_tokens)
 @app.router.delete("/token")
-async def delete_all(input: FromJSON[dict]):
-    chat_id = itemgetter(
-        'chat_id')(input.value)
-
-    group = db.group.find_one({
-        "chatId": chat_id
-    })
+async def delete_tokens(input: FromJSON[dict]):
+    group_id = itemgetter(
+        'group_id')(input.value)
 
     db.groupToken.delete_many(
         {
-            'groupId': group["_id"]
+            'groupId': ObjectId(group_id)
         }
     )
     msg = "All token successfully deleted!"
     return status_code(200, message={'message': msg})
 
 
+@docs(token.change_ads)
 @app.router.put("/ads")
 async def change_ads(input: FromJSON[dict]):
     url, chat_id = itemgetter('url', 'chat_id')(input.value)
@@ -195,6 +204,7 @@ async def change_ads(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_ads)
 @app.router.delete("/ads")
 async def remove_ads(input: FromJSON[dict]):
     chat_id = itemgetter('chat_id')(input.value)
@@ -211,6 +221,7 @@ async def remove_ads(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_min_buy)
 @app.router.put("/min-buy")
 async def change_min_buy(input: FromJSON[dict]):
     min_buy, group_id, token_id = itemgetter(
@@ -242,6 +253,7 @@ async def change_min_buy(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_emoji)
 @app.router.put("/emoji")
 async def change_emoji(input: FromJSON[dict]):
     group_id, token_id, emoji = itemgetter(
@@ -261,6 +273,7 @@ async def change_emoji(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_telegram)
 @app.router.put("/telegram")
 async def change_telegram(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -284,6 +297,7 @@ async def change_telegram(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_telegram)
 @app.router.delete("/telegram")
 async def remove_telegram(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -302,6 +316,7 @@ async def remove_telegram(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_presale)
 @app.router.put("/presale")
 async def change_presale(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -325,6 +340,7 @@ async def change_presale(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_presale)
 @app.router.delete("/presale")
 async def remove_presale(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -343,6 +359,7 @@ async def remove_presale(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_chart)
 @app.router.put("/chart")
 async def change_chart(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -366,6 +383,7 @@ async def change_chart(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_chart)
 @app.router.delete("/chart")
 async def remove_chart(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -384,6 +402,7 @@ async def remove_chart(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_discord)
 @app.router.put("/discord")
 async def change_discord(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -407,6 +426,7 @@ async def change_discord(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_discord)
 @app.router.delete("/discord")
 async def remove_discord(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -425,6 +445,7 @@ async def remove_discord(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_twitter)
 @app.router.put("/twitter")
 async def change_twitter(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -448,6 +469,7 @@ async def change_twitter(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_twitter)
 @app.router.delete("/twitter")
 async def remove_twitter(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -466,6 +488,7 @@ async def remove_twitter(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_website)
 @app.router.put("/website")
 async def change_website(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -489,6 +512,7 @@ async def change_website(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_website)
 @app.router.delete("/website")
 async def remove_website(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -507,6 +531,7 @@ async def remove_website(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_image)
 @app.router.put("/image")
 async def change_image(input: FromJSON[dict]):
     url, group_id, token_id = itemgetter(
@@ -530,6 +555,7 @@ async def change_image(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_image)
 @app.router.delete("/image")
 async def remove_image(input: FromJSON[dict]):
     group_id, token_id = itemgetter(
@@ -548,6 +574,7 @@ async def remove_image(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.update_content)
 @app.router.put("/content")
 async def change_content(input: FromJSON[dict]):
     text, group_id, token_id = itemgetter(
@@ -571,6 +598,7 @@ async def change_content(input: FromJSON[dict]):
     return status_code(200, message={'message': msg})
 
 
+@docs(token.delete_content)
 @app.router.delete("/content")
 async def remove_content(input: FromJSON[dict]):
     group_id, token_id = itemgetter(

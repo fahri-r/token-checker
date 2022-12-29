@@ -147,10 +147,10 @@ class TestClass:
         assert remove_content(data)
 
     def test_resume_all(self):
-        token_id = ObjectId('6350ef9f5b2c7cea3e6ea61a')
-        chat_id = -1001612967544
+        token_id = '6350ef9f5b2c7cea3e6ea61a'
+        group_id = '6347be27293b2388b9db1f93'
         is_paused = False
-        data = {chat_id, is_paused}
+        data = {group_id, is_paused}
         assert update_token(token_id, data)
 
     def test_delete_all(self):
